@@ -1,3 +1,49 @@
+# i) Create eks cluster using
+
+vi eks-cluster.yaml
+
+```bash
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-cluster
+  region: us-west-2
+
+nodeGroups:
+  - name: my-nodegroup              #give the nodegroup name
+    instanceType: t3.medium         #chose the instance type
+    desiredCapacity: 2
+    iam:
+      withAddonPolicies:
+        ebsCSIDriver: true
+    ssh:
+      allow: true
+      publicKeyName: my-ssh-key     #give your public key inorder to access nodes
+
+```
+By this eks cluster will be created with ebs-csi driver role attached to nodegroup
+
+```bash
+eksctl create cluster -f eks-cluster.yaml
+
+```
+# ii)
+
+After eks cluster creation successful then install ebs-csi driver to the cluster by using helm or kubectl
+
+```bash
+kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=release-1.16"
+
+```
+# or
+
+```bash
+helm repo add ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+helm install ebs-csi-driver ebs-csi-driver/aws-ebs-csi-driver --namespace kube-system
+
+```
 # Installing (using Helm) and Configuring Prometheus, Alertmanager and Grafana in Kubernetes Cluster
 
 # 1. Install Helm in Kubernetes cluster
