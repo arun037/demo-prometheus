@@ -1,34 +1,6 @@
-# i) Create eks cluster using
+# Cluster creation and deploy prometheus in eks-cluster
 
-vi eks-cluster.yaml
-
-```bash
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-
-metadata:
-  name: my-cluster
-  region: us-west-2
-
-nodeGroups:
-  - name: my-nodegroup              #give the nodegroup name
-    instanceType: t3.medium         #chose the instance type
-    desiredCapacity: 2
-    iam:
-      withAddonPolicies:
-        ebsCSIDriver: true
-    ssh:
-      allow: true
-      publicKeyName: my-ssh-key     #give your public key inorder to access nodes
-
-```
-By this eks cluster will be created with ebs-csi driver role attached to nodegroup
-
-```bash
-eksctl create cluster -f eks-cluster.yaml
-
-```
-# ii)
+# i)
 
 After eks cluster creation successful then install ebs-csi driver to the cluster by using helm or kubectl
 
@@ -42,6 +14,20 @@ kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernete
 helm repo add ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
 helm repo update
 helm install ebs-csi-driver ebs-csi-driver/aws-ebs-csi-driver --namespace kube-system
+
+```
+then create storage class
+
+```bash
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: prometheus-ebs-sc
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp2         # Use 'gp3' or 'gp2' based on your requirements
+  fsType: ext4      # File system type
+volumeBindingMode: WaitForFirstConsumer
 
 ```
 # Installing (using Helm) and Configuring Prometheus, Alertmanager and Grafana in Kubernetes Cluster
