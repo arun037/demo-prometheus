@@ -1,3 +1,19 @@
+server:
+  persistentVolume:
+    enabled: true
+    storageClass: prometheus-ebs-sc
+    accessModes:
+      - ReadWriteOnce
+    size: 15Gi
+
+alertmanager:
+  persistentVolume:
+    enabled: true
+    storageClass: prometheus-ebs-sc
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+#
 serverFiles:
   alerting_rules.yml:
       groups:
